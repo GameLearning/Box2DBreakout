@@ -28,6 +28,8 @@ private:
     
     b2Body *_paddleBody;
     b2Fixture *_paddleFixture;
+    
+    b2MouseJoint *_mouseJoint;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

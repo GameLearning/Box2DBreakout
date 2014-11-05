@@ -57,22 +57,22 @@ bool HelloWorld::init()
     
     b2BodyDef groundBodyDef;
     groundBodyDef.position.Set(0.0f, 0.0f);
-    b2Body *groundBody = _world->CreateBody(&groundBodyDef);
+    _groundBody = _world->CreateBody(&groundBodyDef);
     b2EdgeShape groundShape;
     b2FixtureDef groundShapeDef;
     groundShapeDef.shape = &groundShape;
     
     groundShape.Set(b2Vec2(0,0),b2Vec2(visibleSize.width /PTM_RATIO,0));
-    _bottomFixture = groundBody->CreateFixture(&groundShapeDef);
+    _bottomFixture = _groundBody->CreateFixture(&groundShapeDef);
     
     groundShape.Set(b2Vec2(0,0),b2Vec2(0,visibleSize.height /PTM_RATIO));
-    groundBody->CreateFixture(&groundShapeDef);
+    _groundBody->CreateFixture(&groundShapeDef);
     
     groundShape.Set(b2Vec2(visibleSize.width /PTM_RATIO,0),b2Vec2(visibleSize.width /PTM_RATIO,visibleSize.height /PTM_RATIO));
-    groundBody->CreateFixture(&groundShapeDef);
+    _groundBody->CreateFixture(&groundShapeDef);
     
     groundShape.Set(b2Vec2(visibleSize.width /PTM_RATIO,visibleSize.height /PTM_RATIO),b2Vec2(0,visibleSize.height /PTM_RATIO));
-    groundBody->CreateFixture(&groundShapeDef);
+    _groundBody->CreateFixture(&groundShapeDef);
     
     
     
@@ -94,7 +94,7 @@ bool HelloWorld::init()
                      _paddle->getContentSize().height/PTM_RATIO/2);
     
     b2FixtureDef paddleShapeDef;
-    paddleShapeDef.shape = &circle;
+    paddleShapeDef.shape = &paddleShape;
     paddleShapeDef.density = 10.0f;
     paddleShapeDef.friction = 0.4f;
     paddleShapeDef.restitution = 0.1f;
@@ -125,17 +125,41 @@ void HelloWorld::update(float dt){
 }
 
 bool HelloWorld::onTouchBegan(Touch* touch, Event* event){
+    if (_mouseJoint != NULL) return false;
     
+    Vec2 location = Director::getInstance()->convertToGL(touch->getLocation());
+    b2Vec2 locationWorld = b2Vec2(touch->getLocation().x/PTM_RATIO, touch->getLocation().y/PTM_RATIO);
+    
+    if (_paddleFixture->TestPoint(locationWorld)) {
+        b2MouseJointDef md;
+        md.bodyA = _groundBody;
+        md.bodyB = _paddleBody;
+        md.target = locationWorld;
+        md.collideConnected = true;
+        md.maxForce = 1000.0f * _paddleBody->GetMass();
+        _mouseJoint = (b2MouseJoint *)_world->CreateJoint(&md);
+        _paddleBody->SetAwake(true);
+    }
 }
 
 void HelloWorld::onTouchMoved(Touch* touch, Event* event){
-
+    if(_mouseJoint == NULL) return;
+    Vec2 location = Director::getInstance()->convertToGL(touch->getLocation());
+    b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
+ 
+    _mouseJoint->SetTarget(locationWorld);
 }
 
 void HelloWorld::onTouchEnded(Touch* touch, Event* event){
-
+    if (_mouseJoint) {
+        _world->DestroyJoint(_mouseJoint);
+        _mouseJoint = NULL;
+    }
 }
 
 void HelloWorld::onTouchCancelled(Touch* touch, Event* event){
-
+    if (_mouseJoint) {
+        _world->DestroyJoint(_mouseJoint);
+        _mouseJoint = NULL;
+    }
 }
