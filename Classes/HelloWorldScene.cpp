@@ -77,7 +77,28 @@ bool HelloWorld::init()
     
     
     _ballbody->ApplyLinearImpulse(b2Vec2(10, 10), ballBodyDef.position,false);
+    
+    
+    Sprite* _paddle = Sprite::create("paddle.png");
+    _paddle->setPosition(visibleSize.width/2,50);
+    this->addChild(_paddle);
+    
+    b2BodyDef paddleBodyDef;
+    paddleBodyDef.type = b2_dynamicBody;
+    paddleBodyDef.userData = _paddle;
+    paddleBodyDef.position.Set(visibleSize.width/2/PTM_RATIO, 50/PTM_RATIO);
+    _paddleBody = _world->CreateBody(&paddleBodyDef);
 
+    b2PolygonShape paddleShape;
+    paddleShape.SetAsBox(_paddle->getContentSize().width/PTM_RATIO/2,
+                     _paddle->getContentSize().height/PTM_RATIO/2);
+    
+    b2FixtureDef paddleShapeDef;
+    paddleShapeDef.shape = &circle;
+    paddleShapeDef.density = 10.0f;
+    paddleShapeDef.friction = 0.4f;
+    paddleShapeDef.restitution = 0.1f;
+    _paddleFixture = _paddleBody->CreateFixture(&paddleShapeDef);
 
     this->scheduleUpdate();
     return true;

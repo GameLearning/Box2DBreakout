@@ -22,7 +22,8 @@ private:
     b2Fixture *_bottomFixture;
     b2Fixture *_ballFixture;
     
-    
+    b2Body *_paddleBody;
+    b2Fixture *_paddleFixture;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
