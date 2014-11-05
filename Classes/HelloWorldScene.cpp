@@ -100,6 +100,13 @@ bool HelloWorld::init()
     paddleShapeDef.restitution = 0.1f;
     _paddleFixture = _paddleBody->CreateFixture(&paddleShapeDef);
 
+    
+    auto listener = EventListenerTouchOneByOne::create();
+    listener->onTouchBegan = CC_CALLBACK_2(HelloWorld::onTouchBegan, this);
+    listener->onTouchMoved = CC_CALLBACK_2(HelloWorld::onTouchMoved, this);
+    listener->onTouchEnded = CC_CALLBACK_2(HelloWorld::onTouchEnded, this);
+    listener->onTouchCancelled = CC_CALLBACK_2(HelloWorld::onTouchCancelled, this);
+    this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
     this->scheduleUpdate();
     return true;
 }
@@ -115,4 +122,20 @@ void HelloWorld::update(float dt){
             ballData->setRotation(-1 * CC_RADIANS_TO_DEGREES(b->GetAngle()));
         }
     }
+}
+
+bool HelloWorld::onTouchBegan(Touch* touch, Event* event){
+    
+}
+
+void HelloWorld::onTouchMoved(Touch* touch, Event* event){
+
+}
+
+void HelloWorld::onTouchEnded(Touch* touch, Event* event){
+
+}
+
+void HelloWorld::onTouchCancelled(Touch* touch, Event* event){
+
 }
