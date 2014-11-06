@@ -100,7 +100,14 @@ bool HelloWorld::init()
     paddleShapeDef.restitution = 0.1f;
     _paddleFixture = _paddleBody->CreateFixture(&paddleShapeDef);
 
-    
+    // Restrict paddle along the x axis
+    b2PrismaticJointDef jointDef;
+    b2Vec2 worldAxis(1.0f, 0.0f);
+    jointDef.collideConnected = true;
+    jointDef.Initialize(_paddleBody, _groundBody,
+      _paddleBody->GetWorldCenter(), worldAxis);
+    _world->CreateJoint(&jointDef);
+
     auto listener = EventListenerTouchOneByOne::create();
     listener->onTouchBegan = CC_CALLBACK_2(HelloWorld::onTouchBegan, this);
     listener->onTouchMoved = CC_CALLBACK_2(HelloWorld::onTouchMoved, this);
@@ -115,11 +122,24 @@ void HelloWorld::update(float dt){
     _world->Step(dt,10,10);
     for(b2Body *b = _world->GetBodyList(); b; b=b->GetNext()) {
         if (b->GetUserData() != NULL) {
-            Sprite *ballData = (Sprite *)b->GetUserData();
-            
-            ballData->setPosition(Vec2(b->GetPosition().x * PTM_RATIO,
+            Sprite *sprite = (Sprite *)b->GetUserData();
+            // if ball is going too fast, turn on damping
+            if (sprite->getTag() == 1) {
+                static int maxSpeed = 10;
+
+                b2Vec2 velocity = b->GetLinearVelocity();
+                float32 speed = velocity.Length();
+
+                if (speed > maxSpeed) {
+                    b->SetLinearDamping(0.5);
+                } else if (speed < maxSpeed) {
+                    b->SetLinearDamping(0.0);
+                }
+
+            }
+            sprite->setPosition(Vec2(b->GetPosition().x * PTM_RATIO,
                                     b->GetPosition().y * PTM_RATIO));
-            ballData->setRotation(-1 * CC_RADIANS_TO_DEGREES(b->GetAngle()));
+            sprite->setRotation(-1 * CC_RADIANS_TO_DEGREES(b->GetAngle()));
         }
     }
 }
