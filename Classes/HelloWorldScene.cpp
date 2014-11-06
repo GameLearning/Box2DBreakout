@@ -113,6 +113,10 @@ bool HelloWorld::init()
     listener->onTouchMoved = CC_CALLBACK_2(HelloWorld::onTouchMoved, this);
     listener->onTouchEnded = CC_CALLBACK_2(HelloWorld::onTouchEnded, this);
     listener->onTouchCancelled = CC_CALLBACK_2(HelloWorld::onTouchCancelled, this);
+    
+    _contactListener = new MyContactListener();
+    _world->SetContactListener(_contactListener);
+    
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
     this->scheduleUpdate();
     return true;
@@ -140,6 +144,16 @@ void HelloWorld::update(float dt){
             sprite->setPosition(Vec2(b->GetPosition().x * PTM_RATIO,
                                     b->GetPosition().y * PTM_RATIO));
             sprite->setRotation(-1 * CC_RADIANS_TO_DEGREES(b->GetAngle()));
+        }
+    }
+    std::vector<MyContact>::iterator pos;
+    for(pos = _contactListener->_contacts.begin();
+      pos != _contactListener->_contacts.end(); ++pos) {
+        MyContact contact = *pos;
+
+        if ((contact.fixtureA == _bottomFixture && contact.fixtureB == _ballFixture) ||
+            (contact.fixtureA == _ballFixture && contact.fixtureB == _bottomFixture)) {
+            CCLog("Ball hit bottom!");
         }
     }
 }

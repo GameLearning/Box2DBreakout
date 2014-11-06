@@ -3,6 +3,7 @@
 
 #include "cocos2d.h"
 #include "Box2D/Box2D.h"
+#include "MyContactListener.h"
 #define PTM_RATIO 32.0
 
 class HelloWorld : public cocos2d::Layer
@@ -30,6 +31,8 @@ private:
     b2Fixture *_paddleFixture;
     
     b2MouseJoint *_mouseJoint;
+    
+    MyContactListener *_contactListener;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

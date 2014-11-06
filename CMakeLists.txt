@@ -42,6 +42,7 @@ set(GAME_SRC
   proj.linux/main.cpp
   Classes/AppDelegate.cpp
   Classes/HelloWorldScene.cpp
+  Classes/MyContactListener.cpp
 )
 elseif ( WIN32 )
 set(GAME_SRC
@@ -50,6 +51,7 @@ set(GAME_SRC
   proj.win32/resource.h
   Classes/AppDelegate.cpp
   Classes/HelloWorldScene.cpp
+  Classes/MyContactListener.cpp
 )
 endif()
 
