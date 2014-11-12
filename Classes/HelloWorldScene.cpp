@@ -35,7 +35,7 @@ bool HelloWorld::init()
     _ball->setTag(1);
     this->addChild(_ball);
     
-    _world = new b2World(b2Vec2(0.0f, 1.0f));
+    _world = new b2World(b2Vec2(0.0f, 0.0f));
 
     b2Body * _ballbody;
     b2BodyDef ballBodyDef;
@@ -75,9 +75,7 @@ bool HelloWorld::init()
     _groundBody->CreateFixture(&groundShapeDef);
     
     
-    
     _ballbody->ApplyLinearImpulse(b2Vec2(10, 10), ballBodyDef.position,false);
-    
     
     Sprite* _paddle = Sprite::create("paddle.png");
     _paddle->setPosition(visibleSize.width/2,50);
@@ -107,6 +105,40 @@ bool HelloWorld::init()
     jointDef.Initialize(_paddleBody, _groundBody,
       _paddleBody->GetWorldCenter(), worldAxis);
     _world->CreateJoint(&jointDef);
+    
+    
+    for(int i = 0; i < 8; i++) {
+ 
+        static int padding=20;
+
+        // Create block and add it to the layer
+        Sprite *block = Sprite::create("block.png");
+        int xOffset = padding+block->getContentSize().width/2+
+          ((block->getContentSize().width+padding)*i);
+        block->setPosition(Vec2(xOffset, 450));
+        block->setTag(2);
+        this->addChild(block);
+
+        // Create block body
+        b2BodyDef blockBodyDef;
+        blockBodyDef.type = b2_dynamicBody;
+        blockBodyDef.position.Set(xOffset/PTM_RATIO, 450/PTM_RATIO);
+        blockBodyDef.userData = block;
+        b2Body *blockBody = _world->CreateBody(&blockBodyDef);
+
+        // Create block shape
+        b2PolygonShape blockShape;
+        blockShape.SetAsBox(block->getContentSize().width/PTM_RATIO/2,
+                            block->getContentSize().height/PTM_RATIO/2);
+
+        // Create shape definition and add to body
+        b2FixtureDef blockShapeDef;
+        blockShapeDef.shape = &blockShape;
+        blockShapeDef.density = 10.0;
+        blockShapeDef.friction = 0.0;
+        blockShapeDef.restitution = 0.1f;
+        blockBody->CreateFixture(&blockShapeDef);
+    }
 
     auto listener = EventListenerTouchOneByOne::create();
     listener->onTouchBegan = CC_CALLBACK_2(HelloWorld::onTouchBegan, this);
